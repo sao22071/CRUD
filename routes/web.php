@@ -37,3 +37,4 @@ require __DIR__.'/auth.php';
 Route::resource('/dashboard/post',PostController::class);
 Route::resource('/dashboard/category',CategoryController::class);
 Route::resource('roles',RolController::class);
+Route::resource('usuarios',UsuarioController::class);

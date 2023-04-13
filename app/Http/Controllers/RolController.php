@@ -5,9 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\BD;
-
-
+use Illuminate\Support\Facades\DB;
 
 class RolController extends Controller
 {
@@ -34,8 +32,8 @@ class RolController extends Controller
      */
     public function create()
     {
-        $permission=Permission::get();
-        return view('roles.crear');
+        $permission=Permission::all()->pluck(value:'name',key:'id');
+        return view('roles.create',compact('permission'));
     }
 
     /**
@@ -44,8 +42,9 @@ class RolController extends Controller
     public function store(Request $request)
     {
          $this->validate($request,['name'=>'required','permission'=>'']);
-         $role=Role::create(['name'=>$request->input('permission')]);
-         $role->syncPermission($request->input('permission'));
+         $role=Role::create($request->only('name'));
+         //$role=Role::create(['name'=>$request->input('permission')]);
+         $role->syncPermissions($request->input('permission',[]));
          return redirect()->route('roles.index');
     }
 
@@ -60,27 +59,31 @@ class RolController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Role $role)
     {
-        $role=Role::find($id);
-        $permission=Permission::get();
-        $rolePermission=DB::table('role_has_pesmissions')->where('role_has_permissions.role._id',$id)
-        //meotdo pluck, recupera todos los valroes de clave determinada
-            ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
-            ->all();
-            return view('roles.editar', compact('role','permission','rolePermissions'));
+        $role->load('permissions');
+        $permission=Permission::all()->pluck(value:'name',key:'id');
+        return view('roles.edit', compact('role','permission'));
+        // $role=Role::find($id);
+        // $permission=Permission::get();
+        // $rolePermission=DB::table('role_has_pesmissions')->where('role_has_permissions.role._id',$id)
+        // //meotdo pluck, recupera todos los valroes de clave determinada
+        //     ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
+        //     ->all();
+        //     return view('roles.editar', compact('role','permission','rolePermissions'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request,  $id)
+    public function update(Request $request,  Role $role)
     {
         $this->validate($request,['name'=>'required','permission'=>'required']);
-        $role=Role::find($id);
-        $role->name=$request->input('name');
-        $role->save();
-        $role->syncPermission($request->input('permission'));
+        // $role=Role::find($id);
+        $role->update($request->only('name'));
+        $role->permissions()->sync($request->input('permission',[]));
+        // $role->save();
+        // $role->syncPermission($request->input('permission'));
         return redirect()->route('roles.index');
     }
 
@@ -89,6 +92,8 @@ class RolController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $rol=Role::find($id);
+        DB::table('roles')->where('id',$id)->delete();
+        return redirect()->route('roles.index');
     }
 }
