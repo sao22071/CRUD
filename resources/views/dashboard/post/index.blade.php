@@ -4,9 +4,12 @@
             <main>
                 <div class="container py-4">
                     <h2>Post Publicados</h2>
-                    <a href="{{ url('dashboard/post/create') }}" class="btn btn-primary btn-sm">
-                        Nuevo Post
-                    </a>
+                    @can('crear-post')
+                        <a href="{{ url('dashboard/post/create') }}" class="btn btn-primary btn-sm">
+                            Nuevo Post
+                        </a>
+                    @endcan
+
                 </div>
                 <table class="table table-dark table-striped">
                     <thead>
@@ -32,15 +35,22 @@
                                 <td>{{ $post->state }}</td>
                                 <td>{{ $post->created_at }}</td>
                                 <td>{{ $post->updated_at }}</td>
-                                <td><a href="{{ url('dashboard/post/' . $post->id . '/edit') }}" method="post"
-                                        class="bi bi-pencil">
-                                    </a></td>
                                 <td>
-                                    <form action="{{ url('dashboard/post/' . $post->id) }}" method="post">
-                                        @method('DELETE')
-                                        @csrf
-                                        <button class="bi bi-eraser-fill" type="submit"></button>
-                                    </form>
+                                    @can('editar-post')
+                                        <a href="{{ url('dashboard/post/' . $post->id . '/edit') }}" method="post"
+                                            class="bi bi-pencil">
+                                        </a>
+                                    @endcan
+                                </td>
+                                <td>
+                                    @can('borrar-post')
+                                        <form action="{{ url('dashboard/post/' . $post->id) }}" method="post">
+                                            @method('DELETE')
+                                            @csrf
+                                            <button class="bi bi-eraser-fill" type="submit"></button>
+                                        </form>
+                                    @endcan
+
                                 </td>
                             </tr>
                         @endforeach
@@ -60,5 +70,3 @@
         </div>
     </div>
 </x-app-layout>
-
-

@@ -9,7 +9,9 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <a href="{{ url('usuarios/create') }}" class="btn btn-primary btn-sm">Nuevo usuario</a>
+                    @can('crear-usuarios')
+                        <a href="{{ url('usuarios/create') }}" class="btn btn-primary btn-sm">Nuevo usuario</a>
+                    @endcan
                     <table class="table table-dark table-striped">
                         <thead>
                             <tr>
@@ -34,15 +36,21 @@
                                             @endforeach
                                         @endif
                                     </td>
-                                    <td><a href="{{ url('usuarios/' . $usuario->id . '/edit') }}"
-                                            class="bi bi-pencil"></a>
+                                    <td>
+                                        @can('edit-usuarios')
+                                            <a href="{{ url('usuarios/' . $usuario->id . '/edit') }}" class="bi bi-pencil"></a>
+                                        @endcan
+
                                     </td>
                                     <td>
-                                        <form action="{{ url('usuarios/' . $usuario->id) }}" method="post">
-                                            @method('DELETE')
-                                            @csrf
-                                            <button class="bi bi-eraser-fill" type="submit"></button>
-                                        </form>
+                                        @can('borrar-usuarios')
+                                            <form action="{{ url('usuarios/' . $usuario->id) }}" method="post">
+                                                @method('DELETE')
+                                                @csrf
+                                                <button class="bi bi-eraser-fill" type="submit"></button>
+                                            </form>
+                                        @endcan
+
                                     </td>
                                 </tr>
                             @endforeach

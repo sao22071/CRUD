@@ -3,7 +3,7 @@
 @section('contenido')
     @include('dashboard.partials.validation-error')
     <h1>Editar Post</h1>
-    <form action="{{ url('dashboard/post/' . $post->id) }}" method="POST">
+    <form action="{{ url('dashboard/post/'.$post->id) }}" method="POST">
         @method('PUT')
         @csrf
         <main>

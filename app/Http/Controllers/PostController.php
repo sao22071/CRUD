@@ -10,6 +10,15 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
+
+    function __Construct()
+    {
+        $this->middleware('permission:ver-post|crear-post|editar-post|borrar-post',['only'=>['index']]);
+        $this->middleware('permission:crear-post',['only'=>['create','store']]);
+        $this->middleware('permission:editar-post',['only'=>['edit','update']]);
+        $this->middleware('permission:borrar-post',['only'=>['edit','destroy']]);
+    }
+
     /**
      * Display a listing of the resource.
      */

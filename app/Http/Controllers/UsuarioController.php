@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
@@ -12,12 +12,20 @@ use Illuminate\Support\Arr;
 
 class UsuarioController extends Controller
 {
+    
+    function __Construct()
+    {
+        $this->middleware('permission:ver-usuarios|crear-usuarios|editar-usuarios|borrar-usuarios',['only'=>['index']]);
+        $this->middleware('permission:crear-usuarios',['only'=>['create','store']]);
+        $this->middleware('permission:editar-usuarios',['only'=>['edit','update']]);
+        $this->middleware('permission:borrar-usuarios',['only'=>['edit','destroy']]);
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $usuarios=User::all();
+        $usuarios=user::all();
         return view('usuarios.index',compact('usuarios'));
     }
 
@@ -26,8 +34,8 @@ class UsuarioController extends Controller
      */
     public function create()
     {
-        $roles=Role::pluck('name','name')->all();
-        return view('usuarios.create', compact('roles'));
+        $roles=Role::pluck('name', 'name')->all();
+        return view('usuarios.create',compact('roles'));
     }
 
     /**
@@ -39,8 +47,7 @@ class UsuarioController extends Controller
             'name'=>'required',
             'email'=>'required|email|unique:users,email',
             'password'=>'required|same:confirm-password',
-            'roles'=>'required'
-        ]);
+            'roles'=>'required']);
         $input=$request->all();
         $input['password']=Hash::make($input['password']);
         $user=User::create($input);
@@ -62,7 +69,7 @@ class UsuarioController extends Controller
     public function edit(string $id)
     {
         $user=User::find($id);
-        $roles=Role::pluck('name','name')->all();
+        $roles=Role::pluck('name', 'name')->all();
         $userRole=$user->roles->pluck('name','name')->all();
         return view('usuarios.edit',compact('user','roles','userRole'));
     }
@@ -74,8 +81,8 @@ class UsuarioController extends Controller
     {
         $this->validate($request,[
             'name'=>'required',
-            'email'=>'required|email|unique:users,email'.$id,
-            'password'=>'required|same:confirm-password',
+            'email'=>'required|email|unique:users,email,'.$id,
+            'password'=>'same:confirm-password',
             'roles'=>'required'
         ]);
         $input=$request->all();
